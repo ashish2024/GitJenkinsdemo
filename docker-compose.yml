@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # BlogService REST API
+  blogservice:
+    image: blogservice-image  # Use the image built earlier
+    container_name: blogservice
+    ports:
+      - "1010:1010"  # Expose the REST API on port 1010
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/blogdb
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    networks:
+      - my-network
+    depends_on:
+      - mysqldb  # Wait for the MySQL container to start first
+
+  # MySQL Database
+  mysqldb:
+    image: mysql:8.0
+    container_name: mysqldb
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: blogdb
+    volumes:
+      - mysqldb-data:/var/lib/mysql  # Persist MySQL data across container restarts
+    networks:
+      - my-network
+    ports:
+      - "3309:3306"  # Expose MySQL on port 3306
+
+# Custom Docker network for communication between containers
+networks:
+  my-network:
+    driver: bridge
+
+# Named volume for MySQL data persistence
+volumes:
+  mysqldb-data:
